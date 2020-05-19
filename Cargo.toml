@@ -1,0 +1,16 @@
+[package]
+name = "tbl"
+version = "0.1.0"
+authors = ["PicoJr <picojr_dev@gmx.com>"]
+edition = "2018"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+itertools = "0.9.0"
+thiserror = "1.0"
+
+# only required for the examples
+[dev-dependencies]
+termion = "1.5.5"
+chrono = "0.4.11"
