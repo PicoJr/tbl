@@ -1,4 +1,4 @@
-use tbl::{Block, BlockRenderer, RenderBlock, Renderer, TBCError};
+use tbl::{Block, BlockRenderer, RenderBlock, Renderer, TBLError};
 
 struct CustomRenderer {}
 
@@ -19,7 +19,7 @@ impl BlockRenderer<String> for CustomRenderer {
     }
 }
 
-fn main() -> Result<(), TBCError> {
+fn main() -> Result<(), TBLError> {
     let data = vec![(0., 2.), (3., 4.)];
     let rendered = Renderer::new(data.as_slice(), &|&e| e, &|e| {
         Some(format!("label for {:?}", e))

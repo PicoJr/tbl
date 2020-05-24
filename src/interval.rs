@@ -64,6 +64,12 @@ pub(crate) fn is_finite<L: Clone + Debug>(interval: &TBLInterval<L>) -> bool {
     a.is_finite() && b.is_finite()
 }
 
+pub(crate) fn intersect<L: Clone + Debug>(left: &TBLInterval<L>, right: &TBLInterval<L>) -> bool {
+    let (left_a, left_b) = left.bounds;
+    let (right_a, _right_b) = right.bounds;
+    left_a <= right_a && right_a < left_b
+}
+
 pub(crate) fn size<L: Clone + Debug>(interval: &TBLInterval<L>) -> usize {
     let (a, b) = interval.bounds;
     (b.floor() - a.floor()) as usize

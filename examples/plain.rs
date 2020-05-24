@@ -1,6 +1,6 @@
-use tbl::{Renderer, TBCError};
+use tbl::{Renderer, TBLError};
 
-fn main() -> Result<(), TBCError> {
+fn main() -> Result<(), TBLError> {
     let data = vec![(0., 2.), (3., 4.)];
     let rendered = Renderer::new(data.as_slice(), &|&e| e, &|_| None::<String>)
         .with_length(42)

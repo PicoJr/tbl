@@ -11,7 +11,7 @@
 ``` rust
 use tbl::{Renderer, TBCError};
 
-fn main() -> Result<(), TBCError> {
+fn main() -> Result<(), TBLError> {
     let data = vec![(0., 2.), (3., 4.)];
     let rendered = Renderer::new(data.as_slice(), &|&e| e, &|_| None::<String>)
         .with_length(42)
@@ -31,7 +31,7 @@ See [examples](examples) folder for more examples.
 
 ## TODO
 
-- [ ] support or forbid joint intervals e.g. `[(0,2), (1,3)]`
+- [x] ~~support or~~ forbid joint intervals e.g. `[(0,2), (1,3)]`
 - [ ] prepare for release on crate.io
 - [ ] add doc
 - [ ] add test

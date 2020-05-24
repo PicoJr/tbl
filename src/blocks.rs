@@ -1,5 +1,7 @@
-use crate::interval::{is_empty, is_finite, scale, size, space_between, translate, TBLInterval};
-use crate::{Block, Bound, TBCError};
+use crate::interval::{
+    intersect, is_empty, is_finite, scale, size, space_between, translate, TBLInterval,
+};
+use crate::{Block, Bound, TBLError};
 use itertools::Itertools;
 use std::fmt::Debug;
 use std::iter;
@@ -29,7 +31,7 @@ pub(crate) fn build_blocks<L>(
     intervals: &[TBLInterval<L>],
     length: usize,
     boundaries: Option<Bound>,
-) -> Result<Vec<TBLBlock<L>>, TBCError>
+) -> Result<Vec<TBLBlock<L>>, TBLError>
 where
     L: Clone + Debug,
 {
@@ -39,8 +41,16 @@ where
         .filter(|interval| !is_empty(interval))
         .sorted()
         .collect();
-    let blocks: Result<Vec<TBLBlock<L>>, TBCError> = match intervals.as_slice() {
-        [] => Err(TBCError::Empty),
+    if let Some(intersection) = intervals
+        .iter()
+        .tuple_windows::<(_, _)>()
+        .find(|(left, right)| intersect(left, right))
+    {
+        let (left, right) = intersection;
+        return Err(TBLError::Intersection(left.bounds, right.bounds));
+    }
+    let blocks: Result<Vec<TBLBlock<L>>, TBLError> = match intervals.as_slice() {
+        [] => Err(TBLError::Empty),
         [interval] => Ok(vec![TBLBlock::Segment(TBLInterval::new(
             interval.bounds,
             interval.label.clone(),
@@ -77,7 +87,7 @@ where
     } else {
         blocks
     };
-    let (min_start, max_end) = (intervals_boundaries.ok_or_else(|| TBCError::NoBoundaries))?;
+    let (min_start, max_end) = (intervals_boundaries.ok_or_else(|| TBLError::NoBoundaries))?;
     let translation = -min_start;
     let ratio = (length as f64) / (max_end - min_start);
     let adjusted: Vec<TBLBlock<L>> = padded_blocks

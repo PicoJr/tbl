@@ -1,5 +1,5 @@
 use chrono::{DateTime, Local, TimeZone, Utc};
-use tbl::{Block, BlockRenderer, Bound, RenderBlock, Renderer, TBCError};
+use tbl::{Block, BlockRenderer, Bound, RenderBlock, Renderer, TBLError};
 use termion::color;
 
 type RGB = (u8, u8, u8);
@@ -60,7 +60,7 @@ impl BlockRenderer<(String, RGB)> for CustomRenderer {
     }
 }
 
-fn main() -> Result<(), TBCError> {
+fn main() -> Result<(), TBLError> {
     // this isn't the real Apollo 11 timeline, it's just an example ;-)
     let data = vec![
         Activity {
@@ -88,9 +88,9 @@ fn main() -> Result<(), TBCError> {
         },
     ];
     let legend = Renderer::new(data.as_slice(), &fbounds, &label_legend)
-    .with_length(120)
-    .with_renderer(&CustomRenderer {})
-    .render()?;
+        .with_length(120)
+        .with_renderer(&CustomRenderer {})
+        .render()?;
     println!("{}", legend);
     let rendered = Renderer::new(data.as_slice(), &fbounds, &label_activity)
         .with_length(120)

@@ -1,7 +1,7 @@
 use crate::blocks::build_blocks;
 use crate::interval::TBLInterval;
 use crate::rendering::{render_blocks, DefaultRenderer, DEFAULT_LENGTH};
-use crate::{Block, BlockRenderer, Bound, TBCError};
+use crate::{Block, BlockRenderer, Bound, TBLError};
 use std::fmt::Debug;
 
 pub struct Renderer<'a, L>
@@ -52,7 +52,7 @@ where
         self
     }
 
-    pub fn render(&self) -> Result<String, TBCError> {
+    pub fn render(&self) -> Result<String, TBLError> {
         let blocks = build_blocks(self.intervals.as_slice(), self.length, self.boundaries)?;
         let blocks: Vec<Block<L>> = blocks.iter().map(|b| Block::from(b.clone())).collect();
         let rendered = render_blocks(blocks.as_slice(), self.renderer);
