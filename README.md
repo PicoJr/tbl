@@ -8,7 +8,7 @@
 
 ## Example
 
-```
+```rust
 use tbl::Renderer;
 
 let data = vec![(0., 2.), (3., 4.)];
@@ -21,7 +21,7 @@ assert_eq!(rendered, "=====================          ===========");
 
 ## Custom Data and Renderer
 
-```
+```rust
 use tbl::{Block, BlockRenderer, RenderBlock, Renderer, TBLError, Bound};
 
 struct CustomData {
