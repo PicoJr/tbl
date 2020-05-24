@@ -120,11 +120,12 @@ fn padding(
 }
 
 fn blocks_boundaries<L: Clone + Debug>(blocks: &[TBLBlock<L>]) -> Option<Bound> {
-    let intervals: Vec<&TBLInterval<L>> = blocks.iter().map(|b|
-        match b {
+    let intervals: Vec<&TBLInterval<L>> = blocks
+        .iter()
+        .map(|b| match b {
             TBLBlock::Space(interval) => interval,
             TBLBlock::Segment(interval) => interval,
-        }
-    ).collect();
+        })
+        .collect();
     crate::interval::boundaries(intervals.as_slice())
 }

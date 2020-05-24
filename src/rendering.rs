@@ -42,6 +42,39 @@ impl PartialEq<std::string::String> for RenderBlock {
     }
 }
 
+/// A custom BlockRenderer is provided to a `Renderer` with `Renderer.with_renderer`.
+///
+/// ```
+/// use tbl::{Block, BlockRenderer, RenderBlock};
+/// struct CustomRenderer {}
+///
+/// impl BlockRenderer<String> for CustomRenderer {
+///     fn render(&self, b: &Block<String>) -> RenderBlock {
+///         match b {
+///             Block::Space(length) => RenderBlock::Space("\u{2606}".repeat(*length)),
+///             Block::Segment(length, label) => {
+///                 let mut truncated = label.clone().unwrap_or_default();
+///                 truncated.truncate(*length);
+///                 RenderBlock::Block(format!(
+///                     "{}{}",
+///                     truncated,
+///                     "\u{2605}".repeat(*length - truncated.len())
+///                 ))
+///             }
+///         }
+///     }
+/// }
+///
+/// let custom_renderer = CustomRenderer {};
+/// assert_eq!(
+///     custom_renderer.render(&Block::Space(2)),
+///     RenderBlock::Space("\u{2606}\u{2606}".to_string())
+/// );
+/// assert_eq!(
+///     custom_renderer.render(&Block::Segment(2, Some("a".to_string()))),
+///     RenderBlock::Block("a\u{2605}".to_string())
+/// );
+/// ```
 pub trait BlockRenderer<L>
 where
     L: Clone + Debug,

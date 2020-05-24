@@ -73,11 +73,14 @@ pub type Bound = (f64, f64);
 pub use builder::Renderer;
 pub use rendering::{BlockRenderer, RenderBlock};
 
+/// Blocks are built, then rendered using a `BlockRenderer`.
 pub enum Block<L>
 where
     L: Clone,
 {
+    /// A space ie not data, with a size (characters)
     Space(usize),
+    /// A segment representing data, with a size (characters) and an optional `label: L`
     Segment(usize, Option<L>),
 }
 
