@@ -87,7 +87,8 @@ where
     } else {
         blocks
     };
-    let (min_start, max_end) = (intervals_boundaries.ok_or_else(|| TBLError::NoBoundaries))?;
+    let padded_blocks_boundaries = blocks_boundaries(padded_blocks.as_slice());
+    let (min_start, max_end) = (padded_blocks_boundaries.ok_or_else(|| TBLError::NoBoundaries))?;
     let translation = -min_start;
     let ratio = (length as f64) / (max_end - min_start);
     let adjusted: Vec<TBLBlock<L>> = padded_blocks
@@ -116,4 +117,14 @@ fn padding(
         }
         _ => None,
     }
+}
+
+fn blocks_boundaries<L: Clone + Debug>(blocks: &[TBLBlock<L>]) -> Option<Bound> {
+    let intervals: Vec<&TBLInterval<L>> = blocks.iter().map(|b|
+        match b {
+            TBLBlock::Space(interval) => interval,
+            TBLBlock::Segment(interval) => interval,
+        }
+    ).collect();
+    crate::interval::boundaries(intervals.as_slice())
 }
