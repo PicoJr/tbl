@@ -1,3 +1,6 @@
+[![tbl crate](https://img.shields.io/crates/v/tbl.svg)](https://crates.io/crates/tbl)
+[![tbl documentation](https://docs.rs/tbl/badge.svg)](https://docs.rs/tbl)
+[![GitHub license](https://img.shields.io/github/license/PicoJr/tbl)](https://github.com/PicoJr/tbl/blob/master/LICENSE)
 # TBL
 
 **T**erminal **B**ar (time)**L**ine (**WIP**)
