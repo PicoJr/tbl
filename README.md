@@ -70,7 +70,7 @@ See [examples](examples) folder for more examples.
 ## TODO
 
 - [x] ~~support or~~ forbid joint intervals e.g. `[(0,2), (1,3)]`
-- [ ] prepare for release on crate.io
+- [x] prepare for release on crate.io
 - [x] add doc
 - [x] add test
 - [ ] split `build_blocks` into several parts
