@@ -52,4 +52,16 @@ mod tests {
             .render();
         assert_eq!(rendered.unwrap(), "  ==  ==  ")
     }
+
+    #[test]
+    fn test_boundaries_ok2() {
+        let data: Vec<Bound> = vec![(1., 2.), (3., 4.)];
+        for length in 0..100 {
+            let rendered = Renderer::new(data.as_slice(), &|&e| e, &|_| None::<String>)
+                .with_length(length)
+                .with_boundaries((0., 3.))
+                .render();
+            assert_eq!(rendered.unwrap().len(), length);
+        }
+    }
 }

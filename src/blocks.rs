@@ -87,13 +87,19 @@ where
         }
     };
     let intervals_boundaries = crate::interval::boundaries(intervals.as_slice());
-    let padded_blocks = if let Some((left, right)) = padding(intervals_boundaries, boundaries) {
-        iter::once(TBLBlock::Space(TBLInterval::new(left, None)))
+    let padded_blocks = match padding(intervals_boundaries, boundaries) {
+        (Some(left), Some(right)) => iter::once(TBLBlock::Space(TBLInterval::new(left, None)))
             .chain(blocks)
             .chain(iter::once(TBLBlock::Space(TBLInterval::new(right, None))))
-            .collect()
-    } else {
-        blocks
+            .collect(),
+        (Some(left), None) => iter::once(TBLBlock::Space(TBLInterval::new(left, None)))
+            .chain(blocks)
+            .collect(),
+        (None, Some(right)) => blocks
+            .into_iter()
+            .chain(iter::once(TBLBlock::Space(TBLInterval::new(right, None))))
+            .collect(),
+        (None, None) => blocks,
     };
     let padded_blocks_boundaries = blocks_boundaries(padded_blocks.as_slice());
     let (min_start, max_end) = (padded_blocks_boundaries.ok_or_else(|| TBLError::NoBoundaries))?;
@@ -116,14 +122,14 @@ where
 fn padding(
     intervals_boundaries: Option<Bound>,
     boundaries: Option<Bound>,
-) -> Option<((f64, f64), (f64, f64))> {
+) -> (Option<Bound>, Option<Bound>) {
     match (intervals_boundaries, boundaries) {
         (Some((a0, b0)), Some((a1, b1))) => {
-            let left = (a0.min(a1), a0.max(a1));
-            let right = (b0.min(b1), b0.max(b1));
-            Some((left, right))
+            let left = if a1 < a0 { Some((a1, a0)) } else { None };
+            let right = if b0 < b1 { Some((b0, b1)) } else { None };
+            (left, right)
         }
-        _ => None,
+        _ => (None, None),
     }
 }
 
