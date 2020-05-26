@@ -88,8 +88,6 @@ where
 pub enum TBLError {
     #[error("no boundaries")]
     NoBoundaries,
-    #[error("empty interval set")]
-    Empty,
     #[error("`{0:?}` intersects `{1:?}` ")]
     Intersection(Bound, Bound),
 }

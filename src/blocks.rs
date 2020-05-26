@@ -15,6 +15,15 @@ where
     Segment(TBLInterval<L>),
 }
 
+impl<L> Default for TBLBlock<L>
+where
+    L: Clone + Debug,
+{
+    fn default() -> Self {
+        TBLBlock::Space(TBLInterval::new((0., 1.), None::<L>))
+    }
+}
+
 impl<L> From<TBLBlock<L>> for Block<L>
 where
     L: Clone + Debug,
@@ -49,16 +58,16 @@ where
         let (left, right) = intersection;
         return Err(TBLError::Intersection(left.bounds, right.bounds));
     }
-    let blocks: Result<Vec<TBLBlock<L>>, TBLError> = match intervals.as_slice() {
-        [] => Err(TBLError::Empty),
-        [interval] => Ok(vec![TBLBlock::Segment(TBLInterval::new(
+    let blocks: Vec<TBLBlock<L>> = match intervals.as_slice() {
+        [] => vec![TBLBlock::default()],
+        [interval] => vec![TBLBlock::Segment(TBLInterval::new(
             interval.bounds,
             interval.label.clone(),
-        ))]),
+        ))],
         _ => {
             let none_delimited = intervals.iter().map(Some).chain(iter::once(None));
             let windowed = none_delimited.tuple_windows::<(_, _)>();
-            Ok(windowed
+            windowed
                 .map(|(left, right)| match (left, right) {
                     (Some(&left_interval), Some(&right_interval)) => {
                         iter::once(TBLBlock::Segment(left_interval.clone()))
@@ -74,10 +83,9 @@ where
                     _ => iter::empty().collect::<Vec<TBLBlock<L>>>(),
                 })
                 .flatten()
-                .collect())
+                .collect()
         }
     };
-    let blocks = blocks?;
     let intervals_boundaries = crate::interval::boundaries(intervals.as_slice());
     let padded_blocks = if let Some((left, right)) = padding(intervals_boundaries, boundaries) {
         iter::once(TBLBlock::Space(TBLInterval::new(left, None)))

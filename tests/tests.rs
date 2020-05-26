@@ -10,7 +10,7 @@ mod tests {
         let rendered = Renderer::new(data.as_slice(), &|&e| e, &|_| None::<String>)
             .with_length(8)
             .render();
-        assert_eq!(rendered.err(), Some(TBLError::Empty));
+        assert_eq!(rendered.unwrap(), "        ");
     }
 
     #[test]
