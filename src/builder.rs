@@ -2,8 +2,8 @@
 
 use crate::blocks::build_blocks;
 use crate::interval::TBLInterval;
-use crate::rendering::{render_blocks, DefaultRenderer, DEFAULT_LENGTH};
-use crate::{Block, BlockRenderer, Bound, TBLError};
+use crate::rendering::{render_blocks, render_default, DEFAULT_LENGTH};
+use crate::{Block, Bound, RenderBlock, TBLError};
 use std::fmt::Debug;
 
 /// Render intervals.
@@ -15,7 +15,7 @@ where
 {
     length: usize,
     intervals: Vec<TBLInterval<L>>,
-    renderer: &'a dyn BlockRenderer<L>,
+    renderer: &'a dyn Fn(&Block<L>) -> RenderBlock,
     boundaries: Option<Bound>,
 }
 
@@ -48,7 +48,7 @@ where
                 .iter()
                 .map(|interval| TBLInterval::new(fb(interval), fl(interval)))
                 .collect(),
-            renderer: &DefaultRenderer {},
+            renderer: &render_default,
             boundaries: None,
         }
     }
@@ -98,37 +98,34 @@ where
     /// Provide a custom renderer
     ///
     /// ```
-    /// use tbl::{BlockRenderer, Block, RenderBlock, Bound, Renderer};
-    /// struct CustomRenderer {}
+    /// use tbl::{Block, RenderBlock, Bound, Renderer};
     ///
-    /// impl BlockRenderer<String> for CustomRenderer {
-    ///   fn render(&self, b: &Block<String>) -> RenderBlock {
-    ///       match b {
-    ///           Block::Space(length) => RenderBlock::Space("\u{2606}".repeat(*length)),
-    ///           Block::Segment(length, label) => {
-    ///               let mut truncated = label.clone().unwrap_or_default();
-    ///               truncated.truncate(*length);
-    ///               RenderBlock::Block(format!(
-    ///                   "{}{}",
-    ///                   truncated,
-    ///                   "\u{2605}".repeat(*length - truncated.len())
-    ///               ))
-    ///           }
-    ///       }
-    ///   }
+    /// fn render(b: &Block<String>) -> RenderBlock {
+    ///    match b {
+    ///        Block::Space(length) => RenderBlock::Space("\u{2606}".repeat(*length)),
+    ///        Block::Segment(length, label) => {
+    ///            let mut truncated = label.clone().unwrap_or_default();
+    ///            truncated.truncate(*length);
+    ///            RenderBlock::Block(format!(
+    ///                "{}{}",
+    ///                truncated,
+    ///                "\u{2605}".repeat(*length - truncated.len())
+    ///            ))
+    ///        }
+    ///    }
     /// }
     /// let data: Vec<Bound> = vec![(1., 2.), (3., 4.)];
     /// let rendered = Renderer::new(data.as_slice(), &|&e| e, &|e| {
     ///         Some(format!("{:?}", e))
     /// })
     /// .with_length(60)
-    /// .with_renderer(&CustomRenderer{})
+    /// .with_renderer(&render)
     /// .render();
     /// assert_eq!(rendered.unwrap(), "(1.0, 2.0)★★★★★★★★★★☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆(3.0, 4.0)★★★★★★★★★★");
     /// ```
     pub fn with_renderer(
         &'a mut self,
-        renderer: &'a dyn BlockRenderer<L>,
+        renderer: &'a dyn Fn(&Block<L>) -> RenderBlock,
     ) -> &'a mut Renderer<'a, L> {
         self.renderer = renderer;
         self

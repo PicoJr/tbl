@@ -1,5 +1,5 @@
 use chrono::{DateTime, Local, TimeZone, Utc};
-use tbl::{Block, BlockRenderer, Bound, RenderBlock, Renderer, TBLError};
+use tbl::{Block, Bound, RenderBlock, Renderer, TBLError};
 use termion::color;
 
 type RGB = (u8, u8, u8);
@@ -32,30 +32,25 @@ fn label_legend(activity: &Activity) -> Option<(String, RGB)> {
     ))
 }
 
-struct CustomRenderer {}
-
-impl BlockRenderer<(String, RGB)> for CustomRenderer {
-    fn render(&self, b: &Block<(String, RGB)>) -> RenderBlock {
-        match b {
-            Block::Space(length) => RenderBlock::Space(format!(
-                "{}{}{}",
+fn render(b: &Block<(String, RGB)>) -> RenderBlock {
+    match b {
+        Block::Space(length) => RenderBlock::Space(format!(
+            "{}{}{}",
+            color::Bg(color::Reset),
+            " ".repeat(*length),
+            color::Bg(color::Reset)
+        )),
+        Block::Segment(length, label) => {
+            let (label, (r, g, b)) = label.clone().unwrap_or_else(|| ("".to_string(), (0, 0, 0)));
+            let mut truncated = label.clone();
+            truncated.truncate(*length);
+            RenderBlock::Block(format!(
+                "{}{}{}{}",
+                color::Bg(color::Rgb(r, g, b)),
+                truncated,
+                " ".repeat(*length - truncated.len()),
                 color::Bg(color::Reset),
-                " ".repeat(*length),
-                color::Bg(color::Reset)
-            )),
-            Block::Segment(length, label) => {
-                let (label, (r, g, b)) =
-                    label.clone().unwrap_or_else(|| ("".to_string(), (0, 0, 0)));
-                let mut truncated = label.clone();
-                truncated.truncate(*length);
-                RenderBlock::Block(format!(
-                    "{}{}{}{}",
-                    color::Bg(color::Rgb(r, g, b)),
-                    truncated,
-                    " ".repeat(*length - truncated.len()),
-                    color::Bg(color::Reset),
-                ))
-            }
+            ))
         }
     }
 }
@@ -89,12 +84,12 @@ fn main() -> Result<(), TBLError> {
     ];
     let legend = Renderer::new(data.as_slice(), &fbounds, &label_legend)
         .with_length(120)
-        .with_renderer(&CustomRenderer {})
+        .with_renderer(&render)
         .render()?;
     println!("{}", legend);
     let rendered = Renderer::new(data.as_slice(), &fbounds, &label_activity)
         .with_length(120)
-        .with_renderer(&CustomRenderer {})
+        .with_renderer(&render)
         .render()?;
     println!("{}", rendered);
     Ok(())

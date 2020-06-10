@@ -17,7 +17,7 @@
 //! ## Custom Data and Renderer
 //!
 //! ```
-//! use tbl::{Block, BlockRenderer, RenderBlock, Renderer, TBLError, Bound};
+//! use tbl::{Block, RenderBlock, Renderer, TBLError, Bound};
 //!
 //! struct CustomData {
 //!    bounds: (usize, usize),
@@ -33,21 +33,17 @@
 //!    Some(cd.label.clone())
 //! }
 //!
-//! struct CustomRenderer {}
-//!
-//! impl BlockRenderer<String> for CustomRenderer {
-//!    fn render(&self, b: &Block<String>) -> RenderBlock {
-//!        match b {
-//!            Block::Space(length) => RenderBlock::Space("\u{2606}".repeat(*length)),
-//!            Block::Segment(length, label) => {
-//!                let mut truncated = label.clone().unwrap_or_default();
-//!                truncated.truncate(*length);
-//!                RenderBlock::Block(format!(
-//!                    "{}{}",
-//!                    truncated,
-//!                    "\u{2605}".repeat(*length - truncated.len())
-//!                ))
-//!            }
+//! fn render(b: &Block<String>) -> RenderBlock {
+//!    match b {
+//!        Block::Space(length) => RenderBlock::Space("\u{2606}".repeat(*length)),
+//!        Block::Segment(length, label) => {
+//!            let mut truncated = label.clone().unwrap_or_default();
+//!            truncated.truncate(*length);
+//!            RenderBlock::Block(format!(
+//!                "{}{}",
+//!                truncated,
+//!                "\u{2605}".repeat(*length - truncated.len())
+//!            ))
 //!        }
 //!    }
 //! }
@@ -55,7 +51,7 @@
 //! let data = vec![CustomData{bounds: (0, 2), label: "hello".to_string()}, CustomData{bounds: (3, 4), label: "world!".to_string()}];
 //! let rendered = Renderer::new(data.as_slice(), &bounds, &label)
 //!        .with_length(60)
-//!        .with_renderer(&CustomRenderer {})
+//!        .with_renderer(&render)
 //!        .render().unwrap();
 //! assert_eq!(rendered, "hello★★★★★★★★★★★★★★★★★★★★★★★★★☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆world!★★★★★★★★★");
 //! ```
@@ -71,7 +67,7 @@ pub(crate) const EPSILON: f64 = 0.1; // < 1/8
 pub type Bound = (f64, f64);
 
 pub use builder::Renderer;
-pub use rendering::{BlockRenderer, RenderBlock};
+pub use rendering::RenderBlock;
 
 /// Blocks are built, then rendered using a `BlockRenderer`.
 pub enum Block<L>

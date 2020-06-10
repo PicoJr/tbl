@@ -1,20 +1,16 @@
-use tbl::{Block, BlockRenderer, RenderBlock, Renderer, TBLError};
+use tbl::{Block, RenderBlock, Renderer, TBLError};
 
-struct CustomRenderer {}
-
-impl BlockRenderer<String> for CustomRenderer {
-    fn render(&self, b: &Block<String>) -> RenderBlock {
-        match b {
-            Block::Space(length) => RenderBlock::Space("\u{2606}".repeat(*length)),
-            Block::Segment(length, label) => {
-                let mut truncated = label.clone().unwrap_or_default();
-                truncated.truncate(*length);
-                RenderBlock::Block(format!(
-                    "{}{}",
-                    truncated,
-                    "\u{2605}".repeat(*length - truncated.len())
-                ))
-            }
+fn render(b: &Block<String>) -> RenderBlock {
+    match b {
+        Block::Space(length) => RenderBlock::Space("\u{2606}".repeat(*length)),
+        Block::Segment(length, label) => {
+            let mut truncated = label.clone().unwrap_or_default();
+            truncated.truncate(*length);
+            RenderBlock::Block(format!(
+                "{}{}",
+                truncated,
+                "\u{2605}".repeat(*length - truncated.len())
+            ))
         }
     }
 }
@@ -25,7 +21,7 @@ fn main() -> Result<(), TBLError> {
         Some(format!("label for {:?}", e))
     })
     .with_length(90)
-    .with_renderer(&CustomRenderer {})
+    .with_renderer(&render)
     .render()?;
     println!("{}", rendered);
     Ok(())
