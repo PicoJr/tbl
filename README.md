@@ -66,6 +66,10 @@ assert_eq!(rendered, "hello★★★★★★★★★★★★★★★★★�
 
 See [examples](examples) folder for more examples.
 
+## Changelog
+
+Please see the [CHANGELOG](CHANGELOG.md) for a release history.
+
 ## TODO
 
 - [x] ~~support or~~ forbid joint intervals e.g. `[(0,2), (1,3)]`

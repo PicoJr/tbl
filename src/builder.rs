@@ -161,7 +161,7 @@ where
         let rendered = render_blocks(blocks.as_slice(), self.renderer);
         let rendered: Vec<String> = rendered
             .iter()
-            .map(|v| v.iter().map(|rb| String::from(rb)).collect())
+            .map(|v| v.iter().map(String::from).collect())
             .collect();
         Ok(rendered)
     }
