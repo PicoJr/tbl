@@ -10,7 +10,9 @@ mod tests {
         let rendered = Renderer::new(data.as_slice(), &|&e| e, &|_| None::<String>)
             .with_length(8)
             .render();
-        assert_eq!(rendered.unwrap(), "        ");
+        for line in rendered.unwrap() {
+            assert_eq!(line, "        ");
+        }
     }
 
     #[test]
@@ -31,7 +33,9 @@ mod tests {
         let rendered = Renderer::new(data.as_slice(), &|&e| e, &|_| None::<String>)
             .with_length(8)
             .render();
-        assert_eq!(rendered.unwrap(), "====  ==")
+        for line in rendered.unwrap() {
+            assert_eq!(line, "====  ==")
+        }
     }
 
     #[test]
@@ -40,7 +44,9 @@ mod tests {
         let rendered = Renderer::new(data.as_slice(), &|&e| e, &|_| None::<String>)
             .with_length(0)
             .render();
-        assert_eq!(rendered.unwrap(), "")
+        for line in rendered.unwrap() {
+            assert_eq!(line, "")
+        }
     }
 
     #[test]
@@ -50,7 +56,9 @@ mod tests {
             .with_length(10)
             .with_boundaries((0., 5.))
             .render();
-        assert_eq!(rendered.unwrap(), "  ==  ==  ")
+        for line in rendered.unwrap() {
+            assert_eq!(line, "  ==  ==  ")
+        }
     }
 
     #[test]
@@ -61,7 +69,9 @@ mod tests {
                 .with_length(length)
                 .with_boundaries((0., 3.))
                 .render();
-            assert_eq!(rendered.unwrap().len(), length);
+            for line in rendered.unwrap() {
+                assert_eq!(line.len(), length);
+            }
         }
     }
 }

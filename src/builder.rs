@@ -35,7 +35,9 @@ where
     /// let rendered = Renderer::new(data.as_slice(), &|&e| e, &|_| None::<String>) // L = String
     ///     .with_length(6)
     ///     .render();
-    /// assert_eq!(rendered.unwrap(), "==  ==");
+    /// for line in rendered.unwrap() {
+    ///     assert_eq!(line, "==  ==");
+    /// }
     /// ```
     pub fn new<T>(
         intervals: &[T],
@@ -61,11 +63,15 @@ where
     /// let rendered = Renderer::new(data.as_slice(), &|&e| e, &|_| None::<String>)
     ///     .with_length(6)
     ///     .render();
-    /// assert_eq!(rendered.unwrap(), "======");
+    /// for line in rendered.unwrap() {
+    ///     assert_eq!(line, "======");
+    /// }
     /// let rendered = Renderer::new(data.as_slice(), &|&e| e, &|_| None::<String>)
     ///     .with_length(8)
     ///     .render();
-    /// assert_eq!(rendered.unwrap(), "========");
+    /// for line in rendered.unwrap() {
+    ///     assert_eq!(line, "========");
+    /// }
     /// ```
     pub fn with_length(&'a mut self, length: usize) -> &'a mut Renderer<'a, L> {
         self.length = length;
@@ -83,12 +89,16 @@ where
     /// let rendered = Renderer::new(data.as_slice(), &|&e| e, &|_| None::<String>)
     ///     .with_length(6)
     ///     .render();
-    /// assert_eq!(rendered.unwrap(), "==  ==");
+    /// for line in rendered.unwrap() {
+    ///     assert_eq!(line, "==  ==");
+    /// }
     /// let rendered = Renderer::new(data.as_slice(), &|&e| e, &|_| None::<String>)
     ///     .with_length(10)
     ///     .with_boundaries((0., 5.))
     ///     .render();
-    /// assert_eq!(rendered.unwrap(), "  ==  ==  ");
+    /// for line in rendered.unwrap() {
+    ///     assert_eq!(line, "  ==  ==  ");
+    /// }
     /// ```
     pub fn with_boundaries(&'a mut self, boundaries: Bound) -> &'a mut Renderer<'a, L> {
         self.boundaries = Some(boundaries);
@@ -121,7 +131,9 @@ where
     /// .with_length(60)
     /// .with_renderer(&render)
     /// .render();
-    /// assert_eq!(rendered.unwrap(), "(1.0, 2.0)★★★★★★★★★★☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆(3.0, 4.0)★★★★★★★★★★");
+    /// for line in rendered.unwrap() {
+    ///     assert_eq!(line, "(1.0, 2.0)★★★★★★★★★★☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆(3.0, 4.0)★★★★★★★★★★");
+    /// }
     /// ```
     pub fn with_renderer(
         &'a mut self,
@@ -139,13 +151,18 @@ where
     /// let rendered = Renderer::new(data.as_slice(), &|&e| e, &|_| None::<String>) // L = String
     ///     .with_length(6)
     ///     .render();
-    /// assert_eq!(rendered.unwrap(), "==  ==");
+    /// for line in rendered.unwrap() {
+    ///     assert_eq!(line, "==  ==");
+    /// }
     /// ```
-    pub fn render(&self) -> Result<String, TBLError> {
+    pub fn render(&self) -> Result<Vec<String>, TBLError> {
         let blocks = build_blocks(self.intervals.as_slice(), self.length, self.boundaries)?;
         let blocks: Vec<Block<L>> = blocks.iter().map(|b| Block::from(b.clone())).collect();
         let rendered = render_blocks(blocks.as_slice(), self.renderer);
-        let rendered: Vec<String> = rendered.iter().map(String::from).collect();
-        Ok(rendered.concat())
+        let rendered: Vec<String> = rendered
+            .iter()
+            .map(|v| v.iter().map(|rb| String::from(rb)).collect())
+            .collect();
+        Ok(rendered)
     }
 }

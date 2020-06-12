@@ -23,6 +23,8 @@ fn main() -> Result<(), TBLError> {
     .with_length(90)
     .with_renderer(&render)
     .render()?;
-    println!("{}", rendered);
+    for line in rendered {
+        println!("{}", line);
+    }
     Ok(())
 }

@@ -86,11 +86,15 @@ fn main() -> Result<(), TBLError> {
         .with_length(120)
         .with_renderer(&render)
         .render()?;
-    println!("{}", legend);
+    for line in legend {
+        println!("{}", line);
+    }
     let rendered = Renderer::new(data.as_slice(), &fbounds, &label_activity)
         .with_length(120)
         .with_renderer(&render)
         .render()?;
-    println!("{}", rendered);
+    for line in rendered {
+        println!("{}", line);
+    }
     Ok(())
 }

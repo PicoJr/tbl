@@ -11,7 +11,9 @@
 //!     .with_length(42)
 //!     .render()
 //!     .unwrap();
-//! assert_eq!(rendered, "=====================          ===========");
+//! for line in rendered {
+//!     assert_eq!(line, "=====================          ===========");
+//! }
 //! ```
 //!
 //! ## Custom Data and Renderer
@@ -53,7 +55,9 @@
 //!        .with_length(60)
 //!        .with_renderer(&render)
 //!        .render().unwrap();
-//! assert_eq!(rendered, "hello★★★★★★★★★★★★★★★★★★★★★★★★★☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆world!★★★★★★★★★");
+//! for line in rendered {
+//!     assert_eq!(line, "hello★★★★★★★★★★★★★★★★★★★★★★★★★☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆world!★★★★★★★★★");
+//! }
 //! ```
 
 use thiserror::Error;
