@@ -8,6 +8,7 @@ description = "display timelines in terminal"
 license = "MIT OR Apache-2.0"
 readme = "README.md"
 keywords = ["timeline", "interval", "bar", "lib"]
+include = ["src/**/*", "LICENSE", "README.md", "CHANGELOG.md", "img/timeline.png"]
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
