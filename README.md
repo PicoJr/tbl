@@ -19,7 +19,9 @@ let rendered = Renderer::new(data.as_slice(), &|&e| e, &|_| None::<String>) // e
     .with_length(42)
     .render()
     .unwrap();
-assert_eq!(rendered, "=====================          ===========");
+for line in rendered {
+    assert_eq!(line, "=====================          ===========");
+}
 ```
 
 ## Custom Data and Renderer
@@ -61,7 +63,9 @@ let rendered = Renderer::new(data.as_slice(), &bounds, &label)
        .with_length(60)
        .with_renderer(&render)
        .render().unwrap();
-assert_eq!(rendered, "hello★★★★★★★★★★★★★★★★★★★★★★★★★☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆world!★★★★★★★★★");
+for line in rendered {
+    assert_eq!(line, "hello★★★★★★★★★★★★★★★★★★★★★★★★★☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆world!★★★★★★★★★");
+}
 ```
 
 See [examples](examples) folder for more examples.
