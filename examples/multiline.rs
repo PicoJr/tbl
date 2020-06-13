@@ -4,21 +4,18 @@ use tbl::{Block, RenderBlock, Renderer, TBLError};
 use termion::color;
 
 fn chunkify(s: &String, size: usize) -> Vec<String> {
-    let inter = s.chars().collect_vec();
+    let inter: Vec<char> = s.chars().collect();
     let chunks = inter.chunks_exact(size);
     let remainder = chunks.remainder().to_vec();
-    let padding = std::iter::repeat(' ')
+    let padding: Vec<char> = std::iter::repeat(' ')
         .take(size - remainder.len())
-        .collect_vec();
-    let padded_remainder: Vec<char> = remainder
-        .iter()
-        .chain(padding.iter())
-        .cloned()
-        .collect_vec();
-    chunks
+        .collect();
+    let padded_remainder: Vec<char> = remainder.iter().chain(padding.iter()).cloned().collect();
+    let chunks: Vec<String> = chunks
         .chain(std::iter::once(padded_remainder.as_slice()))
         .map(|s| String::from_iter(s.iter()))
-        .collect_vec()
+        .collect();
+    chunks
 }
 
 fn render(b: &Block<String>) -> RenderBlock {
