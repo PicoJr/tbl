@@ -25,7 +25,7 @@ assert_eq!(rendered, "=====================          ===========");
 ## Custom Data and Renderer
 
 ```rust
-use tbl::{Block, BlockRenderer, RenderBlock, Renderer, TBLError, Bound};
+use tbl::{Block, RenderBlock, Renderer, TBLError, Bound};
 
 struct CustomData {
    bounds: (usize, usize),
@@ -41,21 +41,17 @@ fn label(cd: &CustomData)-> Option<String> {
    Some(cd.label.clone())
 }
 
-struct CustomRenderer {}
-
-impl BlockRenderer<String> for CustomRenderer {
-   fn render(&self, b: &Block<String>) -> RenderBlock {
-       match b {
-           Block::Space(length) => RenderBlock::Space("\u{2606}".repeat(*length)),
-           Block::Segment(length, label) => {
-               let mut truncated = label.clone().unwrap_or_default();
-               truncated.truncate(*length);
-               RenderBlock::Block(format!(
-                   "{}{}",
-                   truncated,
-                   "\u{2605}".repeat(*length - truncated.len())
-               ))
-           }
+fn render(b: &Block<String>) -> RenderBlock {
+   match b {
+       Block::Space(length) => RenderBlock::Space("\u{2606}".repeat(*length)),
+       Block::Segment(length, label) => {
+           let mut truncated = label.clone().unwrap_or_default();
+           truncated.truncate(*length);
+           RenderBlock::Block(format!(
+               "{}{}",
+               truncated,
+               "\u{2605}".repeat(*length - truncated.len())
+           ))
        }
    }
 }
@@ -63,12 +59,16 @@ impl BlockRenderer<String> for CustomRenderer {
 let data = vec![CustomData{bounds: (0, 2), label: "hello".to_string()}, CustomData{bounds: (3, 4), label: "world!".to_string()}];
 let rendered = Renderer::new(data.as_slice(), &bounds, &label)
        .with_length(60)
-       .with_renderer(&CustomRenderer {})
+       .with_renderer(&render)
        .render().unwrap();
 assert_eq!(rendered, "hello★★★★★★★★★★★★★★★★★★★★★★★★★☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆world!★★★★★★★★★");
 ```
 
 See [examples](examples) folder for more examples.
+
+## Changelog
+
+Please see the [CHANGELOG](CHANGELOG.md) for a release history.
 
 ## TODO
 
