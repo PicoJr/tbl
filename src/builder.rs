@@ -155,7 +155,7 @@ where
     ///     assert_eq!(line, "==  ==");
     /// }
     /// ```
-    pub fn render(&self) -> Result<Vec<String>, TBLError> {
+    pub fn render(&self) -> Result<Vec<String>, TBLError<L>> {
         let blocks = build_blocks(self.intervals.as_slice(), self.length, self.boundaries)?;
         let blocks: Vec<Block<L>> = blocks.iter().map(|b| Block::from(b.clone())).collect();
         let rendered = render_blocks(blocks.as_slice(), self.renderer);

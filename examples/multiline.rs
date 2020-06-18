@@ -3,19 +3,23 @@ use std::iter::FromIterator;
 use tbl::{Block, RenderBlock, Renderer, TBLError};
 use termion::color;
 
-fn chunkify(s: &String, size: usize) -> Vec<String> {
-    let inter: Vec<char> = s.chars().collect();
-    let chunks = inter.chunks_exact(size);
-    let remainder = chunks.remainder().to_vec();
-    let padding: Vec<char> = std::iter::repeat(' ')
-        .take(size - remainder.len())
-        .collect();
-    let padded_remainder: Vec<char> = remainder.iter().chain(padding.iter()).cloned().collect();
-    let chunks: Vec<String> = chunks
-        .chain(std::iter::once(padded_remainder.as_slice()))
-        .map(|s| String::from_iter(s.iter()))
-        .collect();
-    chunks
+fn chunkify(s: &str, size: usize) -> Vec<String> {
+    if size == 0 {
+        vec![]
+    } else {
+        let inter: Vec<char> = s.chars().collect();
+        let chunks = inter.chunks_exact(size);
+        let remainder = chunks.remainder().to_vec();
+        let padding: Vec<char> = std::iter::repeat(' ')
+            .take(size - remainder.len())
+            .collect();
+        let padded_remainder: Vec<char> = remainder.iter().chain(padding.iter()).cloned().collect();
+        let chunks: Vec<String> = chunks
+            .chain(std::iter::once(padded_remainder.as_slice()))
+            .map(|s| String::from_iter(s.iter()))
+            .collect();
+        chunks
+    }
 }
 
 fn render(b: &Block<String>) -> RenderBlock {
@@ -38,7 +42,7 @@ fn render(b: &Block<String>) -> RenderBlock {
     }
 }
 
-fn main() -> Result<(), TBLError> {
+fn main() -> Result<(), TBLError<String>> {
     let data = vec![(0., 2.), (3., 4.), (5., 6.)];
     let rendered = Renderer::new(data.as_slice(), &|&e| e, &|_| {
         Some("hello world".to_string())

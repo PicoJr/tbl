@@ -60,6 +60,7 @@
 //! }
 //! ```
 
+use std::fmt::Debug;
 use thiserror::Error;
 
 mod blocks;
@@ -85,9 +86,9 @@ where
 }
 
 #[derive(Error, Debug, PartialEq)]
-pub enum TBLError {
+pub enum TBLError<L: Clone + Debug> {
     #[error("no boundaries")]
     NoBoundaries,
     #[error("`{0:?}` intersects `{1:?}` ")]
-    Intersection(Bound, Bound),
+    Intersection(Option<L>, Option<L>),
 }

@@ -3,6 +3,7 @@ use tbl::{Block, Bound, RenderBlock, Renderer, TBLError};
 use termion::color;
 
 type RGB = (u8, u8, u8);
+type Label = (String, RGB);
 
 struct Activity {
     start: DateTime<Local>,
@@ -55,7 +56,7 @@ fn render(b: &Block<(String, RGB)>) -> RenderBlock {
     }
 }
 
-fn main() -> Result<(), TBLError> {
+fn main() -> Result<(), TBLError<Label>> {
     // this isn't the real Apollo 11 timeline, it's just an example ;-)
     let data = vec![
         Activity {

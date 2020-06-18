@@ -23,7 +23,7 @@ fn render(b: &Block<String>) -> RenderBlock {
     }
 }
 
-fn main() -> Result<(), TBLError> {
+fn main() -> Result<(), TBLError<String>> {
     let data = vec![(0., 2.), (3., 4.)];
     let rendered = Renderer::new(data.as_slice(), &|&e| e, &|e| {
         Some(format!("label for {:?}", e))

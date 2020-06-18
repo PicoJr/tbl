@@ -40,7 +40,7 @@ pub(crate) fn build_blocks<L>(
     intervals: &[TBLInterval<L>],
     length: usize,
     boundaries: Option<Bound>,
-) -> Result<Vec<TBLBlock<L>>, TBLError>
+) -> Result<Vec<TBLBlock<L>>, TBLError<L>>
 where
     L: Clone + Debug,
 {
@@ -56,7 +56,10 @@ where
         .find(|(left, right)| intersect(left, right))
     {
         let (left, right) = intersection;
-        return Err(TBLError::Intersection(left.bounds, right.bounds));
+        return Err(TBLError::Intersection(
+            left.label.clone(),
+            right.label.clone(),
+        ));
     }
     let blocks: Vec<TBLBlock<L>> = match intervals.as_slice() {
         [] => vec![TBLBlock::default()],
