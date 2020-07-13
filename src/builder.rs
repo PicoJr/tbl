@@ -1,9 +1,10 @@
 //! A Renderer builds `Blocks` from provided intervals and render them.
 
 use crate::blocks::build_blocks;
-use crate::interval::TBLInterval;
+use crate::interval::{boundaries, is_empty, is_finite, split_overlapping, union, TBLInterval};
 use crate::rendering::{render_blocks, render_default, DEFAULT_LENGTH};
 use crate::{Block, Bound, RenderBlock, TBLError};
+use itertools::Itertools;
 use std::fmt::Debug;
 
 /// Render intervals.
@@ -35,7 +36,7 @@ where
     /// let rendered = Renderer::new(data.as_slice(), &|&e| e, &|_| None::<String>) // L = String
     ///     .with_length(6)
     ///     .render();
-    /// for line in rendered.unwrap() {
+    /// for line in rendered.unwrap().iter().flatten() {
     ///     assert_eq!(line, "==  ==");
     /// }
     /// ```
@@ -63,13 +64,13 @@ where
     /// let rendered = Renderer::new(data.as_slice(), &|&e| e, &|_| None::<String>)
     ///     .with_length(6)
     ///     .render();
-    /// for line in rendered.unwrap() {
+    /// for line in rendered.unwrap().iter().flatten() {
     ///     assert_eq!(line, "======");
     /// }
     /// let rendered = Renderer::new(data.as_slice(), &|&e| e, &|_| None::<String>)
     ///     .with_length(8)
     ///     .render();
-    /// for line in rendered.unwrap() {
+    /// for line in rendered.unwrap().iter().flatten() {
     ///     assert_eq!(line, "========");
     /// }
     /// ```
@@ -89,14 +90,14 @@ where
     /// let rendered = Renderer::new(data.as_slice(), &|&e| e, &|_| None::<String>)
     ///     .with_length(6)
     ///     .render();
-    /// for line in rendered.unwrap() {
+    /// for line in rendered.unwrap().iter().flatten() {
     ///     assert_eq!(line, "==  ==");
     /// }
     /// let rendered = Renderer::new(data.as_slice(), &|&e| e, &|_| None::<String>)
     ///     .with_length(10)
     ///     .with_boundaries((0., 5.))
     ///     .render();
-    /// for line in rendered.unwrap() {
+    /// for line in rendered.unwrap().iter().flatten() {
     ///     assert_eq!(line, "  ==  ==  ");
     /// }
     /// ```
@@ -131,7 +132,7 @@ where
     /// .with_length(60)
     /// .with_renderer(&render)
     /// .render();
-    /// for line in rendered.unwrap() {
+    /// for line in rendered.unwrap().iter().flatten() {
     ///     assert_eq!(line, "(1.0, 2.0)★★★★★★★★★★☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆(3.0, 4.0)★★★★★★★★★★");
     /// }
     /// ```
@@ -143,7 +144,12 @@ where
         self
     }
 
-    /// Render intervals as a `String`.
+    /// Render intervals as a `Vec<Vec<String>>`.
+    ///
+    /// 1. Overlapping intervals are split into non overlapping subsets.
+    /// 2. Each subset is rendered as a potentialy multiline timeline: `Vec<String>`
+    ///
+    /// ie `Vec<Vec<String>>` is a vec of (multiline) timelines.
     ///
     /// ```
     /// use tbl::{Bound, Renderer};
@@ -151,18 +157,43 @@ where
     /// let rendered = Renderer::new(data.as_slice(), &|&e| e, &|_| None::<String>) // L = String
     ///     .with_length(6)
     ///     .render();
-    /// for line in rendered.unwrap() {
+    /// for line in rendered.unwrap().iter().flatten() {
     ///     assert_eq!(line, "==  ==");
     /// }
     /// ```
-    pub fn render(&self) -> Result<Vec<String>, TBLError<L>> {
-        let blocks = build_blocks(self.intervals.as_slice(), self.length, self.boundaries)?;
-        let blocks: Vec<Block<L>> = blocks.iter().map(|b| Block::from(b.clone())).collect();
-        let rendered = render_blocks(blocks.as_slice(), self.renderer);
-        let rendered: Vec<String> = rendered
+    pub fn render(&self) -> Result<Vec<Vec<String>>, TBLError<L>> {
+        let sorted_intervals: Vec<TBLInterval<L>> = self
+            .intervals
             .iter()
-            .map(|v| v.iter().map(String::from).collect())
+            .filter(|interval| is_finite(interval))
+            .filter(|interval| !is_empty(interval))
+            .sorted()
+            .cloned()
             .collect();
+        let boundaries = match (boundaries(sorted_intervals.as_slice()), self.boundaries) {
+            (None, _) => self.boundaries,
+            (Some(b), None) => Some(b),
+            (Some(b), Some(other)) => Some(union(&b, &other)),
+        };
+        let non_overlapping_subsets = split_overlapping(sorted_intervals.as_slice());
+        let rendered: Vec<Vec<String>> = non_overlapping_subsets
+            .iter()
+            .map(
+                |intervals| match build_blocks(intervals.as_slice(), self.length, boundaries) {
+                    Err(e) => Err(e),
+                    Ok(blocks) => {
+                        let blocks: Vec<Block<L>> =
+                            blocks.iter().map(|b| Block::from(b.clone())).collect();
+                        let rendered = render_blocks(blocks.as_slice(), self.renderer);
+                        let rendered = rendered
+                            .iter()
+                            .map(|v| v.iter().map(String::from).collect())
+                            .collect::<Vec<String>>();
+                        Ok(rendered)
+                    }
+                },
+            )
+            .collect::<Result<Vec<Vec<String>>, TBLError<L>>>()?;
         Ok(rendered)
     }
 }

@@ -50,7 +50,7 @@ fn main() -> Result<(), TBLError<String>> {
     .with_length(42)
     .with_renderer(&render)
     .render()?;
-    for line in rendered {
+    for line in rendered.iter().flatten() {
         println!("{}", line);
     }
     Ok(())

@@ -1,4 +1,5 @@
 use chrono::{DateTime, Local, TimeZone, Utc};
+use itertools::zip;
 use tbl::{Block, Bound, RenderBlock, Renderer, TBLError};
 use termion::color;
 
@@ -78,6 +79,11 @@ fn main() -> Result<(), TBLError<Label>> {
             )),
         },
         Activity {
+            start: Utc.ymd(1969, 7, 20).and_hms(14, 0, 0).into(),
+            end: Utc.ymd(1969, 7, 20).and_hms(15, 0, 0).into(),
+            label: Some(("eat re-hydrated food".to_string(), (3, 169, 244))),
+        },
+        Activity {
             start: Utc.ymd(1969, 7, 20).and_hms(20, 17, 0).into(),
             end: Utc.ymd(1969, 7, 20).and_hms(22, 0, 0).into(),
             label: Some(("moon walk".to_string(), (96, 125, 139))),
@@ -87,15 +93,18 @@ fn main() -> Result<(), TBLError<Label>> {
         .with_length(120)
         .with_renderer(&render)
         .render()?;
-    for line in legend {
-        println!("{}", line);
-    }
     let rendered = Renderer::new(data.as_slice(), &fbounds, &label_activity)
         .with_length(120)
         .with_renderer(&render)
         .render()?;
-    for line in rendered {
-        println!("{}", line);
+    let timeline = zip(legend, rendered);
+    for (legend_lines, data_lines) in timeline {
+        for line in legend_lines {
+            println!("{}", line);
+        }
+        for line in data_lines {
+            println!("{}", line);
+        }
     }
     Ok(())
 }

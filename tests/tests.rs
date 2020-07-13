@@ -10,7 +10,7 @@ mod tests {
         let rendered = Renderer::new(data.as_slice(), &|&e| e, &|_| None::<String>)
             .with_length(8)
             .render();
-        for line in rendered.unwrap() {
+        for line in rendered.unwrap().iter().flatten() {
             assert_eq!(line, "        ");
         }
     }
@@ -22,8 +22,8 @@ mod tests {
             .with_length(8)
             .render();
         assert!(match rendered {
-            Err(TBLError::Intersection(_, _)) => true,
-            _ => false,
+            Err(TBLError::Intersection(_, _)) => false,
+            _ => true,
         })
     }
 
@@ -33,7 +33,7 @@ mod tests {
         let rendered = Renderer::new(data.as_slice(), &|&e| e, &|_| None::<String>)
             .with_length(8)
             .render();
-        for line in rendered.unwrap() {
+        for line in rendered.unwrap().iter().flatten() {
             assert_eq!(line, "====  ==")
         }
     }
@@ -44,7 +44,7 @@ mod tests {
         let rendered = Renderer::new(data.as_slice(), &|&e| e, &|_| None::<String>)
             .with_length(0)
             .render();
-        for line in rendered.unwrap() {
+        for line in rendered.unwrap().iter().flatten() {
             assert_eq!(line, "")
         }
     }
@@ -56,7 +56,7 @@ mod tests {
             .with_length(10)
             .with_boundaries((0., 5.))
             .render();
-        for line in rendered.unwrap() {
+        for line in rendered.unwrap().iter().flatten() {
             assert_eq!(line, "  ==  ==  ")
         }
     }
@@ -69,7 +69,7 @@ mod tests {
                 .with_length(length)
                 .with_boundaries((0., 3.))
                 .render();
-            for line in rendered.unwrap() {
+            for line in rendered.unwrap().iter().flatten() {
                 assert_eq!(line.len(), length);
             }
         }

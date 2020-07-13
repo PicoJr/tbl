@@ -1,4 +1,5 @@
 use crate::{Bound, EPSILON};
+use itertools::Itertools;
 use std::cmp::Ordering;
 use std::fmt::Debug;
 
@@ -88,7 +89,7 @@ pub(crate) fn scale<L: Clone + Debug>(interval: &TBLInterval<L>, ratio: f64) -> 
     TBLInterval::new((a * ratio, b * ratio), interval.label.clone())
 }
 
-pub(crate) fn boundaries<L: Clone + Debug>(intervals: &[&TBLInterval<L>]) -> Option<Bound> {
+pub(crate) fn boundaries_ref<L: Clone + Debug>(intervals: &[&TBLInterval<L>]) -> Option<Bound> {
     intervals
         .iter()
         .fold(None, |boundaries, b| match (boundaries, b) {
@@ -100,6 +101,24 @@ pub(crate) fn boundaries<L: Clone + Debug>(intervals: &[&TBLInterval<L>]) -> Opt
         })
 }
 
+pub(crate) fn boundaries<L: Clone + Debug>(intervals: &[TBLInterval<L>]) -> Option<Bound> {
+    intervals
+        .iter()
+        .fold(None, |boundaries, b| match (boundaries, b) {
+            (None, interval) => Some(interval.bounds),
+            (Some((ma, mb)), interval) => {
+                let (a, b) = interval.bounds;
+                Some((a.min(ma), b.max(mb)))
+            }
+        })
+}
+
+pub(crate) fn union(bound: &Bound, other: &Bound) -> Bound {
+    let (a0, b0) = bound;
+    let (a1, b1) = other;
+    (a0.min(*a1), b0.max(*b1))
+}
+
 pub(crate) fn space_between<L: Clone + Debug>(
     left: &TBLInterval<L>,
     right: &TBLInterval<L>,
@@ -107,4 +126,81 @@ pub(crate) fn space_between<L: Clone + Debug>(
     let (_left_a, left_b) = left.bounds;
     let (right_a, _right_b) = right.bounds;
     TBLInterval::new((left_b, right_a), None)
+}
+
+fn overlaps_first<L: Clone + Debug>(
+    interval: &TBLInterval<L>,
+    sorted_non_overlapping_intervals: &[TBLInterval<L>],
+) -> bool {
+    match sorted_non_overlapping_intervals {
+        [] => false,
+        [first, _others @ ..] => intersect(interval, first),
+    }
+}
+
+pub(crate) fn split_overlapping<L: Clone + Debug>(
+    sorted_intervals: &[TBLInterval<L>],
+) -> Vec<Vec<TBLInterval<L>>> {
+    match sorted_intervals {
+        [] => vec![],
+        [first, others @ ..] => {
+            let non_overlapping_subsets = split_overlapping(others);
+            let (inserted, subsets): (bool, Vec<Vec<TBLInterval<L>>>) = non_overlapping_subsets
+                .iter()
+                .fold((false, vec![]), |(inserted, subsets), intervals| {
+                    if !inserted && !overlaps_first(first, intervals) {
+                        let prepended: Vec<TBLInterval<L>> = std::iter::once(first)
+                            .chain(intervals)
+                            .cloned()
+                            .collect_vec();
+                        let new_subsets: Vec<Vec<TBLInterval<L>>> = subsets
+                            .iter()
+                            .cloned()
+                            .chain(std::iter::once(prepended))
+                            .collect_vec();
+                        (true, new_subsets)
+                    } else {
+                        let new_subsets: Vec<Vec<TBLInterval<L>>> = subsets
+                            .iter()
+                            .cloned()
+                            .chain(std::iter::once(intervals.clone()))
+                            .collect_vec();
+                        (inserted, new_subsets)
+                    }
+                });
+            if inserted {
+                subsets
+            } else {
+                subsets
+                    .iter()
+                    .cloned()
+                    .chain(std::iter::once(vec![first.clone()]))
+                    .collect_vec()
+            }
+        }
+    }
+}
+
+#[cfg(test)]
+mod test {
+    use crate::interval::{split_overlapping, TBLInterval};
+
+    #[test]
+    fn test_split_overlapping() {
+        let intervals: Vec<TBLInterval<String>> = vec![TBLInterval::new((0.0, 1.0), None)];
+        let non_overlapping_subsets = split_overlapping(intervals.as_slice());
+        assert_eq!(non_overlapping_subsets.len(), 1);
+        let intervals: Vec<TBLInterval<String>> = vec![
+            TBLInterval::new((0.0, 1.0), None),
+            TBLInterval::new((0.5, 1.5), None),
+        ];
+        let non_overlapping_subsets = split_overlapping(intervals.as_slice());
+        assert_eq!(non_overlapping_subsets.len(), 2);
+        let intervals: Vec<TBLInterval<String>> = vec![
+            TBLInterval::new((0.0, 1.0), None),
+            TBLInterval::new((1.5, 2.5), None),
+        ];
+        let non_overlapping_subsets = split_overlapping(intervals.as_slice());
+        assert_eq!(non_overlapping_subsets.len(), 1);
+    }
 }

@@ -89,7 +89,7 @@ where
                 .collect()
         }
     };
-    let intervals_boundaries = crate::interval::boundaries(intervals.as_slice());
+    let intervals_boundaries = crate::interval::boundaries_ref(intervals.as_slice());
     let padded_blocks = match padding(intervals_boundaries, boundaries) {
         (Some(left), Some(right)) => iter::once(TBLBlock::Space(TBLInterval::new(left, None)))
             .chain(blocks)
@@ -144,5 +144,5 @@ fn blocks_boundaries<L: Clone + Debug>(blocks: &[TBLBlock<L>]) -> Option<Bound> 
             TBLBlock::Segment(interval) => interval,
         })
         .collect();
-    crate::interval::boundaries(intervals.as_slice())
+    crate::interval::boundaries_ref(intervals.as_slice())
 }

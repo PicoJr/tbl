@@ -11,7 +11,7 @@
 //!     .with_length(42)
 //!     .render()
 //!     .unwrap();
-//! for line in rendered {
+//! for line in rendered.iter().flatten() {
 //!     assert_eq!(line, "=====================          ===========");
 //! }
 //! ```
@@ -55,7 +55,7 @@
 //!        .with_length(60)
 //!        .with_renderer(&render)
 //!        .render().unwrap();
-//! for line in rendered {
+//! for line in rendered.iter().flatten() {
 //!     assert_eq!(line, "hello★★★★★★★★★★★★★★★★★★★★★★★★★☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆world!★★★★★★★★★");
 //! }
 //! ```

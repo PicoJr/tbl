@@ -19,7 +19,7 @@ let rendered = Renderer::new(data.as_slice(), &|&e| e, &|_| None::<String>) // e
     .with_length(42)
     .render()
     .unwrap();
-for line in rendered {
+for line in rendered.iter().flatten() {
     assert_eq!(line, "=====================          ===========");
 }
 ```
@@ -63,7 +63,7 @@ let rendered = Renderer::new(data.as_slice(), &bounds, &label)
        .with_length(60)
        .with_renderer(&render)
        .render().unwrap();
-for line in rendered {
+for line in rendered.iter().flatten() {
     assert_eq!(line, "hello★★★★★★★★★★★★★★★★★★★★★★★★★☆☆☆☆☆☆☆☆☆☆☆☆☆☆☆world!★★★★★★★★★");
 }
 ```
@@ -76,7 +76,7 @@ Please see the [CHANGELOG](CHANGELOG.md) for a release history.
 
 ## TODO
 
-- [x] ~~support or~~ forbid joint intervals e.g. `[(0,2), (1,3)]`
+- [x] support overlapping intervals e.g. `[(0,2), (1,3)]`
 - [x] prepare for release on crate.io
 - [x] add doc
 - [x] add test

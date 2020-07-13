@@ -1,6 +1,6 @@
 [package]
 name = "tbl"
-version = "1.1.0-alpha"
+version = "1.1.0-alpha.1"
 authors = ["PicoJr <picojr_dev@gmx.com>"]
 edition = "2018"
 repository = "https://github.com/PicoJr/tbl"

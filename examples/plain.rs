@@ -5,7 +5,7 @@ fn main() -> Result<(), TBLError<String>> {
     let rendered = Renderer::new(data.as_slice(), &|&e| e, &|_| None::<String>)
         .with_length(42)
         .render()?;
-    for line in rendered {
+    for line in rendered.iter().flatten() {
         println!("{}", line);
     }
     Ok(())
